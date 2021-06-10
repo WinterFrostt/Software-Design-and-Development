@@ -407,4 +407,19 @@ namespace Tic_Tac_Toe
     }
 }
 
+using System; //Won't Make a move if there's a variable in the same position
+
+
+namespace Tic_Tac_Toe
+{
+    public class BoardException : ApplicationException
+    {
+        public BoardException(string message) : base(message)
+        {
+
+        }
+    }
+}
+
+
 
