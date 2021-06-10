@@ -1,0 +1,410 @@
+using System; //Main Space
+
+namespace Tic_Tac_Toe
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+
+            Match match = new Match();
+            Canvas canvas = new Canvas();
+
+            try
+            {
+                while (!match.Finished)
+                {
+
+                    try
+                    {
+
+                        Canvas.printBoard(match.board);
+                        Console.WriteLine(match.NumberOfPlayersLeft);
+                        Console.WriteLine("Waiting For Player {0}", match.WhoIsPlaying());
+                        Position pos = canvas.ReadPosition().ConvertToLetter(); 
+                        match.MakeMove(pos);
+
+                        Console.Clear();
+
+
+                    }
+                    catch (BoardException e)
+                    {
+                        Console.WriteLine(e.Message);
+                        Console.ReadLine();
+                    }
+                    Console.Clear();
+                }
+               
+            }
+            catch (BoardException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.ReadLine();
+            }
+            Console.Clear();
+        }
+    }
+}
+
+
+using System; //Color Space
+
+
+namespace Tic_Tac_Toe
+
+    
+{
+    public enum Color
+    {
+        Black, //Color for the Variable X 
+        White  //Color for the Variable O
+    }
+}
+
+using System; //Board Positions
+
+
+namespace Tic_Tac_Toe
+
+    //Position in the board
+{
+    public class Position
+    {
+        public int row { get; set; }
+        public int column { get; set; }
+
+        public Position(int row, int column)
+        {
+            this.row = row;
+            this.column = column;
+        }
+    }
+}
+
+using System; //The board
+
+
+namespace Tic_Tac_Toe
+
+    
+{
+    public class Canvas
+    {
+        public static void printBoard(Board b)
+        {
+
+            Console.WriteLine("3" + " {0}  |  {1}  |  {2}", b.board[0, 0], b.board[0, 1], b.board[0, 2]);
+            Console.WriteLine("2" + " {0}  |  {1}  |  {2}", b.board[1, 0], b.board[1, 1], b.board[1, 2]);
+            Console.WriteLine("1" + " {0}  |  {1}  |  {2}", b.board[2, 0], b.board[2, 1], b.board[2, 2]);
+            Console.WriteLine("  A    B    C ");
+
+
+        }
+
+        public Letter ReadPosition()
+        {
+            string s = Console.ReadLine();
+            char row = s[0];
+            int column = int.Parse(s[1] + " ");
+
+            return new Letter(row, column);
+        }
+
+    }
+}
+
+using System;  // What happens in the board
+
+namespace Tic_Tac_Toe
+
+    
+{
+    public class Board
+    {
+        public int rows { get; set; }
+        public int columns { get; set; }
+        public string[,] board;
+        public Board(int rows, int columns)
+        {
+            this.rows = rows;
+            this.columns = columns;
+            board = new string[rows, columns];
+        }
+
+        public string boardPos(Position pos)
+        {
+            InsideOfBoard(pos);
+            return board[pos.row, pos.column];
+        }
+
+        public string boardPos(int rows, int columns)
+        {
+            return board[rows, columns];
+        }
+
+        public bool PosIsOccupied(Position pos)
+        {
+            return boardPos(pos) != null;
+        }
+
+        public void PlacePlayerAt(Player player, Position pos)
+        {
+            if (PosIsOccupied(pos))
+            {
+                throw new BoardException("The position is already occupied");
+            }
+            board[pos.row, pos.column] = player.ToString();
+            player.position = pos;
+        }
+
+        public bool IsOutOfBoard(Position pos)
+        {
+            if (pos.row < 0 || pos.row >= rows || pos.column < 0 || pos.column >= columns)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public void InsideOfBoard(Position pos)
+        {
+            if (!IsOutOfBoard(pos))
+            {
+                throw new BoardException("Position is outside the board");
+            }
+        }
+
+    }
+}
+
+using System; //Player Moves(X;O)
+
+namespace Tic_Tac_Toe
+{
+
+    //What happens in the match
+    public class Match
+    {
+        public Board board { get; set; }
+        public Color CurrentPlayer;
+        public int NumberOfPlayersLeft = 9;
+        public bool Finished = false;
+        public Match()
+        {
+            board = new Board(3, 3);
+            CurrentPlayer = Color.Black;
+        }
+
+        public void ChangePlayer()
+        {
+            if (CurrentPlayer == Color.Black)
+            {
+                CurrentPlayer = Color.White;
+            }
+            else
+            {
+                CurrentPlayer = Color.Black;
+            }
+
+
+        }
+
+        public void CheckWinner()
+        {
+            // Top Row
+            if (board.boardPos(0,0) !=null)
+            {
+                if (board.board[0, 0] == board.board[0, 1] && board.board[0, 1] == board.board[0, 2])
+                {
+                    Console.WriteLine(board.board[0, 0] + " Is The Winner");
+                    Console.Read();
+                    Finished = true;
+                }
+            }
+            //Middle Row
+            if (board.boardPos(1, 0) != null)
+            {
+                if (board.board[1, 0] == board.board[1, 1] && board.board[1, 1] == board.board[1, 2])
+                {
+                    Console.WriteLine(board.board[1, 0] + " Is The Winner");
+                    Console.Read();
+                    Finished = true;
+                }
+            }
+            //Bottom Row
+            if (board.boardPos(2, 0) != null)
+            {
+                if (board.board[2, 0] == board.board[2, 1] && board.board[2, 1] == board.board[2, 2])
+                {
+                    Console.WriteLine(board.board[2, 0] + " Is The Winner");
+                    Console.Read();
+                    Finished = true;
+                }
+            }
+            //Left Column
+            if (board.boardPos(0, 0) != null)
+            {
+                if (board.board[0, 0] == board.board[1, 0] && board.board[1, 0] == board.board[2, 0])
+                {
+                    Console.WriteLine(board.board[0, 0] + " Is The Winner");
+                    Console.Read();
+                    Finished = true;
+                }
+            }
+            //Middle Column
+            if (board.boardPos(0, 1) != null)
+            {
+                if (board.board[0, 1] == board.board[1, 1] && board.board[1, 1] == board.board[2, 1])
+                {
+                    Console.WriteLine(board.board[0, 1] + " Is The Winner");
+                    Console.Read();
+                    Finished = true;
+                }
+            }
+            //Right Column
+            if (board.boardPos(0, 2) != null)
+            {
+                if (board.board[0, 2] == board.board[1, 2] && board.board[1, 2] == board.board[2, 2])
+                {
+                    Console.WriteLine(board.board[0, 2] + " Is The Winner");
+                    Console.Read();
+                    Finished = true;
+                }
+            }
+            //top left to bottom right diagonal
+            if (board.boardPos(0, 0) != null)
+            {
+                if (board.board[0, 0] == board.board[1, 1] && board.board[1, 1] == board.board[2, 2])
+                {
+                    Console.WriteLine(board.board[0, 0] + " Is The Winner");
+                    Console.Read();
+                    Finished = true;
+                }
+            }
+            //top right to bottom left diagonal
+            if (board.boardPos(0, 2) != null)
+            {
+                if (board.board[0, 2] == board.board[1, 1] && board.board[1, 1] == board.board[2, 0])
+                {
+                    Console.WriteLine(board.board[0, 2] + " Is The Winner");
+                    Console.Read();
+                    Finished = true;
+                }
+            }
+
+            if (NumberOfPlayersLeft == 0)
+            {
+                Console.WriteLine("It's A Tie!");
+                Finished = true;
+            }
+        }
+        public Player WhoIsPlaying()
+        {
+            if (CurrentPlayer == Color.Black)
+            {
+                return new PlayerO(Color.Black);
+            }
+            else
+            {
+                return new PlayerX(Color.Black);
+            }
+        }
+        //Player moves, Player Changes and Player wins
+        public void MakeMove(Position MovePosition)
+        {
+            CheckWinner();
+            board.PlacePlayerAt(WhoIsPlaying(), MovePosition);
+            NumberOfPlayersLeft--;
+            ChangePlayer();
+        }
+    }
+}
+
+using System; //Player And Variable(X;O) Specification
+
+
+namespace Tic_Tac_Toe
+
+    
+{
+    public class Player
+    {
+        public Position position;
+        public Color color;
+
+        public Player(Color color)
+        {
+            position = null;
+            this.color = color;
+        }
+
+    }
+}
+
+using System; //Player O makes a move
+
+
+namespace Tic_Tac_Toe
+{
+
+   
+    public class PlayerO : Player
+    {
+        public PlayerO(Color color) : base(color)
+        {
+
+        }
+
+        public override string ToString()
+        {
+            return "O";
+        }
+    }
+}
+
+using System; //Player X makes a move
+
+namespace Tic_Tac_Toe
+{
+
+    //Player X Specification
+    public class PlayerX : Player
+    {
+        public PlayerX(Color color) : base(color)
+        {
+
+        }
+
+        public override string ToString()
+        {
+            return "x";
+        }
+    }
+}
+
+using System; // coordinates will be changed to something similar to chess positions (A1,A2....C3)
+
+
+namespace Tic_Tac_Toe
+{
+    // changing row variable from numbers to letters
+    public class Letter
+    {
+        char column { get; set; }
+        int row { get; set; }
+      
+        public Letter(char column, int row)
+        {
+            this.row = row;
+            this.column = column;
+        }
+
+        public Position ConvertToLetter()
+        {
+            return new Position(3 - row, column - 'A');
+        }
+    }
+}
+
+
